@@ -1,0 +1,83 @@
+from nicegui import ui
+
+ui.label('Hello from NiceGUI!')
+ui.button('Press me', on_click=lambda: ui.notify('button pressed'))
+ui.run(port=8090)
+
+
+ui.icon('thumb_up')
+ui.markdown('This is **Markdown**.')
+ui.html('This is <strong>HTML</strong>.')
+with ui.row():
+    ui.label('CSS').style('color: #888; font-weight: bold')
+    ui.label('Tailwind').classes('font-serif')
+    ui.label('Quasar').classes('q-ml-xl')
+ui.link('NiceGUI on GitHub', 'https://github.com/zauberzeug/nicegui')
+
+ui.run()
+
+
+from nicegui.events import ValueChangeEventArguments
+
+def show(event: ValueChangeEventArguments):
+    name = type(event.sender).__name__
+    ui.notify(f'{name}: {event.value}')
+
+ui.button('Button', on_click=lambda: ui.notify('Click'))
+with ui.row():
+    ui.checkbox('Checkbox', on_change=show)
+    ui.switch('Switch', on_change=show)
+ui.radio(['A', 'B', 'C'], value='A', on_change=show).props('inline')
+with ui.row():
+    ui.input('Text input', on_change=show)
+    ui.select(['One', 'Two'], value='One', on_change=show)
+ui.link('And many more...', '/documentation').classes('mt-8')
+
+ui.run()
+
+from nicegui import ui
+from datetime import datetime, timedelta
+import os
+
+# Mock "data storage" directory
+DATA_DIR = "recordings"
+os.makedirs(DATA_DIR, exist_ok=True)
+
+# For prototyping: create some fake folders (each folder = one recording)
+def create_mock_data():
+    now = datetime.now()
+    for i in range(5):  # make 5 fake recordings
+        date = (now - timedelta(days=i)).strftime("%Y-%m-%d_%H-%M-%S")
+        folder = os.path.join(DATA_DIR, date)
+        os.makedirs(folder, exist_ok=True)
+
+create_mock_data()
+
+# Function to refresh the folder list
+def show_recordings():
+    recordings = sorted(os.listdir(DATA_DIR), reverse=True)
+    with ui.column().classes('gap-2 w-full'):
+        ui.label('Recordings (last 30 days)').classes('text-xl font-bold')
+        for rec in recordings:
+            ui.button(rec, on_click=lambda r=rec: ui.notify(f'Opening {r}')).props('flat')
+
+# Page layout
+@ui.page('/')
+def index():
+    # Title
+    ui.label('Bruxism Data Collection WebApp').classes('text-2xl font-bold mb-4')
+
+    # Local server time (auto-updating)
+    def update_time(label):
+        label.set_text(f"Local Server Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    time_label = ui.label()
+    ui.timer(1.0, lambda: update_time(time_label))
+
+    # Show the recordings folder list
+    show_recordings()
+
+ui.run(port=8090)
+
+
+
+

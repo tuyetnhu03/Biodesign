@@ -1,3 +1,4 @@
+""" WEB APP UI """
 from nicegui import ui
 
 ui.label('Hello from NiceGUI!')
@@ -77,6 +78,15 @@ def index():
     show_recordings()
 
 ui.run(port=8090)
+
+
+
+
+
+
+""" End of UI code """
+
+#%% 
 
 
 
